@@ -1,0 +1,134 @@
+from news.models import *
+
+user1 = User.objects.create_user('Hudson')
+user2 = User.objects.create_user("D'Angelo Russell")
+user3 = User.objects.create_user("Sheldon Skaggs")
+
+author1 = Author.objects.create(username=user1, nick_name='Nathaniel')
+author2 = Author.objects.create(username=user2)
+author3 = Author.objects.create(username=user3, nick_name='Michelangelo')
+
+
+cat1 = Category.objects.create(category='Saint Barthelemy')
+cat2 = Category.objects.create(category='Mozambique')
+cat3 = Category.objects.create(category='Chile')
+cat4 = Category.objects.create(category='Uzbekistan')
+
+news1 = Post.objects.create(title='New Soniaside', text="Voluptatum homero singulis altera explicari reprimique platea \
+quot cursus dicit sea dicunt ligula per simul omittantur adipiscing epicuri errem has sumo decore ceteros noster \
+quaerendum epicuri ponderum accumsan debet curabitur percipit lacus voluptaria sadipscing congue movet proin urna \
+docendi.", post_author=author1)
+
+article1 = Post.objects.create(title='Things are not always as they seemed, much that may seem evil can be good.',\
+text="Mattis curabitur sollicitudin putent metus tibique usu convallis facilisis \
+dicit possim ius regione arcu inciderint voluptaria feugiat oporteat consectetuer disputationi vulputate congue \
+suavitate pertinacia comprehensam etiam conclusionemque magna atqui ad facilisis atomorum omittam quaestio mel \
+doctus imperdiet principes eius postulant convenire at mollis erat maecenas mi enim sociosqu morbi ligula parturient \
+tota habitant bibendum varius risus autem. Augue himenaeos etiam debet tale tempor delicata eget accommodare omittam \
+nec mutat eius orci ligula repudiare consectetur his accommodare nullam usu constituam mediocrem donec justo \
+instructior convallis morbi repudiandae perpetua faucibus recteque dicta tibique nihil. Habitant lorem diam \
+ullamcorper saepe justo constituam dolores labores lectus dolorum luptatum nulla epicurei morbi deserunt nisi \
+tincidunt vehicula dicat appetere inciderint appareat venenatis condimentum suscipiantur errem sale quis id unum \
+veniam delicata animal audire tortor volutpat euripidis voluptatum menandri netus feugait commune graeci appareat \
+nam legimus assueverit per lacinia tamquam tellus. Dicunt ponderum in torquent alia quot falli pro feugait habitant \
+maiestatis ut veritus accommodare tempor alterum signiferumque consequat alienum feugait epicurei turpis proin \
+conclusionemque vocibus vivendo maecenas cu laoreet mutat consetetur antiopam impetus per voluptaria reformidans \
+propriae senserit auctor quem ante. Facilisis sollicitudin efficitur patrioque voluptatum eu ludus non quaerendum \
+nunc discere viderer omnesque eget causae sumo duo laoreet nec possim sententiae agam postea tibique duo perpetua \
+netus morbi vix odio dolores vivendo phasellus tation alia affert phasellus ea metus moderatius homero intellegebat \
+eget accusata homero volutpat.", post_type=Post.article, post_author=author1)
+
+article2 = Post.objects.create(title='Your weapons, you will not need them.', text="Maiestatis elitr fermentum \
+offendit tation docendi intellegat dapibus diam massa blandit eu quot eos lorem saepe vix cetero aliquid suavitate \
+dapibus vel duo consul laudem adversarium suavitate posidonium conubia menandri eius quidam egestas dico reprehendunt \
+ceteros nostrum natoque elit convenire epicuri nullam mazim placerat dictas persecuti fuisset ante. Referrentur \
+veniam tritani alia dictumst appareat ubique hac tibique movet eruditi ultricies non iriure mazim quas lectus ludus \
+metus consectetur vulputate penatibus vidisse amet ipsum scripserit porta sit quaerendum porttitor impetus veritus \
+vehicula aliquet tempor civibus vero fermentum urbanitas mnesarchum expetenda etiam elit facilis morbi no aperiri \
+patrioque voluptaria instructior graeco mea no necessitatibus tincidunt porro adolescens discere noluisse posse \
+repudiandae altera.", post_type=Post.article, post_author=author2)
+
+news2 = Post.objects.create(title='Belarus', text="Imperdiet ferri fastidii parturient mazim ullamcorper fabellas a \
+etiam vel reque nihil platea cubilia aliquet habitasse rutrum venenatis in quem amet gubergren reprimique autem \
+vivendo orci eos cursus aperiri phasellus mollis iuvaret vehicula quot velit integer quot efficitur at turpis vel \
+mazim doming.", post_author=author3)
+
+PostCategory.objects.create(post=news1, category=cat1)
+PostCategory.objects.create(post=article1, category=cat2)
+PostCategory.objects.create(post=article1, category=cat3)
+PostCategory.objects.create(post=article2, category=cat4)
+PostCategory.objects.create(post=news2, category=cat2)
+PostCategory.objects.create(post=news2, category=cat3)
+
+com1 = Comment.objects.create(to_post=news1, user=user2, text="Hide the wenches, Witcher's coming!!")
+com2 = Comment.objects.create(to_post=article1, user=user2, text="Oh year... the Elder Blood can be fiery")
+com3 = Comment.objects.create(to_post=article1, user=user1, text="Harry, suffering like this proves you are still a \
+man! This pain is part of being human...the fact that you can feel pain like this is your greatest strength.")
+com4 = Comment.objects.create(to_post=article2, user=user1, text="It’s wingardium leviOsa, not leviosAH.")
+com5 = Comment.objects.create(to_post=news2, user=user1, text="Truly wonderful, the mind of a child is.")
+com6 = Comment.objects.create(to_post=news2, user=user2, text="Winter is coming.")
+
+news1.like()
+
+article1.like()
+article1.like()
+article1.like()
+
+
+article2.like()
+article2.like()
+article2.like()
+
+news2.dislike()
+
+com1.like()
+com1.like()
+
+com2.like()
+com2.like()
+
+com3.like()
+com3.like()
+
+com4.like()
+com4.like()
+com4.like()
+com4.like()
+
+com5.dislike()
+com5.dislike()
+com5.dislike()
+
+com6.dislike()
+com6.dislike()
+
+
+author1.update_rating()
+author2.update_rating()
+author3.update_rating()
+
+username, rate = (Author.objects.all().order_by('-user_rate').values('username__username', 'user_rate')[0]).values()
+username
+rate
+
+
+best_article = Post.objects.all().order_by('-rate')[0]
+date, username, rate, title = Post.objects.all().order_by('-rate').values('creation_time', 'post_author__username__username', 'rate', 'title')[0].values()
+text_preview = best_article.preview()
+date
+username
+rate
+title
+text_preview
+
+comments_to_est_article = Comment.objects.all().values('creation_time', 'user__username', 'rate', 'text')
+
+
+comments_to_est_article = Comment.objects.all().values('creation_time', 'user__username', 'rate', 'text')
+for comment in comments_to_est_article:
+    date, name, rate, text = comment.values()
+    date
+    name
+    rate
+    text
+
