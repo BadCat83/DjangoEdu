@@ -56,6 +56,9 @@ class Post(models.Model):
         self.rate -= 1
         self.save()
 
+    def __str__(self):
+        return f'{self.title.title()}: {self.text[:50]}...'
+
 
 class PostCategory(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)

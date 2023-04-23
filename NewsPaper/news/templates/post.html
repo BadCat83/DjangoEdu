@@ -1,0 +1,27 @@
+{% extends 'default.html' %}
+{% load custom_filters %}
+
+{% block title %}
+<h1>Пост {{post.title|censor_filter}}</h1>
+{% endblock title %}
+
+{% block content %}
+<h1>{{post.creation_time|date:'d M Y'}} {{post.title|censor_filter}}</h1>
+{% if post %}
+       <table>
+           <tr>
+               <td>Заголовок</td>
+               <td>Дата публикации</td>
+               <td>Содержание</td>
+           </tr>
+           <tr>
+               <td>{{ post.title|censor_filter }}</td>
+               <td>{{post.creation_time|date:'d M Y'}}</td>
+               <td>{{ post.text|censor_filter}}</td>
+           </tr>
+
+       </table>
+   {% else %}
+       <h2>Такого поста нет!</h2>
+   {% endif %}
+{% endblock content %}

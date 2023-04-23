@@ -1,0 +1,32 @@
+{% extends 'default.html' %}
+
+{% load custom_filters %}
+
+{% block title %}
+<h1>Все новости</h1>
+{% endblock title %}
+
+{% block content %}
+<h1>Всего {{news|length}} новост{{news|length|news_formatting}}</h1>
+<hr>
+   {% if news %}
+       <table>
+           <tr>
+               <td>Заголовок</td>
+               <td>Дата публикации</td>
+               <td>Содержание</td>
+           </tr>
+
+           {% for info in news %}
+           <tr>
+               <td>{{ info.title|censor_filter }}</td>
+               <td>{{info.creation_time|date:'d M Y'}}</td>
+               <td>{{ info.text|truncatewords:20|censor_filter }}</td>
+           </tr>
+           {% endfor %}
+
+       </table>
+   {% else %}
+       <h2>Новостей нет!</h2>
+   {% endif %}
+{% endblock content %}

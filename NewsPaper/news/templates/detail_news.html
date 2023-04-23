@@ -1,0 +1,27 @@
+{% extends 'default.html' %}
+{% load custom_filters %}
+
+{% block title %}
+<h1>Новость {{news.title|censor_filter}}</h1>
+{% endblock title %}
+
+{% block content %}
+<h1>{{news.creation_time|date:'d M Y'}} {{news.title|censor_filter}}</h1>
+{% if news %}
+       <table>
+           <tr>
+               <td>Заголовок</td>
+               <td>Дата публикации</td>
+               <td>Содержание</td>
+           </tr>
+           <tr>
+               <td>{{ news.title|censor_filter }}</td>
+               <td>{{news.creation_time|date:'d M Y'}}</td>
+               <td>{{ news.text|censor_filter}}</td>
+           </tr>
+
+       </table>
+   {% else %}
+       <h2>Такой новости нет!</h2>
+   {% endif %}
+{% endblock content %}
