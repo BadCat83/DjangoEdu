@@ -3,13 +3,13 @@
 {% load custom_filters %}
 
 {% block title %}
-<h1>Все посты</h1>
+<h1>Все статьи</h1>
 {% endblock title %}
 
 {% block content %}
-<h1>Всего {{posts|length}} пост{{posts|length|posts_formatting}}</h1>
+<h1>Всего {{articles|length}} стат{{articles|length|articles_formatting}}</h1>
 <hr>
-   {% if posts %}
+   {% if articles %}
        <table>
            <tr>
                <td>Заголовок</td>
@@ -17,17 +17,17 @@
                <td>Содержание</td>
            </tr>
 
-           {% for post in posts %}
+           {% for article in articles %}
            <tr>
-               <td>{{ post.title|censor_filter }}</td>
-               <td>{{post.creation_time|date:'d M Y'}}</td>
-               <td>{{ post.text|truncatewords:20|censor_filter }}</td>
+               <td>{{ article.title|censor_filter }}</td>
+               <td>{{article.creation_time|date:'d M Y'}}</td>
+               <td>{{ article.text|truncatewords:20|censor_filter }}</td>
            </tr>
            {% endfor %}
 
        </table>
    {% else %}
-       <h2>Постов нет!</h2>
+       <h2>Статей нет!</h2>
    {% endif %}
 
     {# Добавляем пагинацию на страницу #}

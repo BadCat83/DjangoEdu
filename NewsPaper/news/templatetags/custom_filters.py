@@ -1,21 +1,13 @@
 from django import template
 
+from .utils import censor
+
 register = template.Library()
 
 
 @register.filter()
 def censor_filter(text: str) -> str:
-    if type(text) == str:
-        obscene_words = {'редиска', 'свинтус', 'дурак'}
-        text = text.split(' ')
-        for index, word in enumerate(text):
-            word = "".join(symb for symb in word if symb.isalpha())
-            if word in obscene_words:
-                text[index] = word[0] + '*' * (len(word) - 1)
-        return " ".join(text)
-    else:
-        raise ValueError
-
+    return censor(text)
 
 
 @register.filter()
@@ -28,6 +20,7 @@ def news_formatting(news_count: int) -> str:
     else:
         return 'ей'
 
+
 @register.filter()
 def posts_formatting(posts_count: int) -> str:
     count = posts_count % 10
@@ -37,3 +30,14 @@ def posts_formatting(posts_count: int) -> str:
         return 'а'
     else:
         return 'ов'
+
+
+@register.filter()
+def articles_formatting(posts_count: int) -> str:
+    count = posts_count % 10
+    if count == 1:
+        return 'ья'
+    elif count in [2, 3, 4] and posts_count not in [12, 13, 14]:
+        return 'ьи'
+    else:
+        return 'ей'

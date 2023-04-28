@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.urls import reverse
 
 
 class Author(models.Model):
@@ -27,6 +28,9 @@ class Author(models.Model):
 
 class Category(models.Model):
     category = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return f'{self.category}'
 
 
 class Post(models.Model):
@@ -58,6 +62,12 @@ class Post(models.Model):
 
     def __str__(self):
         return f'{self.title.title()}: {self.text[:50]}...'
+
+    def get_absolute_url(self):
+        if self.post_type == "NW":
+            return reverse('news', args=[str(self.id)])
+        return reverse('article', args=[str(self.id)])
+
 
 
 class PostCategory(models.Model):
