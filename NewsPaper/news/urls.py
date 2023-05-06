@@ -1,5 +1,6 @@
-from django.urls import path
+from django.urls import path, include
 from .views import *
+
 
 urlpatterns = [
     path('', AllPostsList.as_view(), name='all_posts'),
@@ -16,4 +17,10 @@ urlpatterns = [
     path('article/<int:pk>/update', ArticleUpdate.as_view(), name='article_update'),
     path('article/<int:pk>/delete', ArticleDelete.as_view(), name='article_delete'),
     path('search', SearchPostList.as_view(), name='search'),
+    # path('login/', LoginView.as_view(template_name='login.html'), name='login'),
+    # path('logout/', LogoutView.as_view(template_name='logout.html'), name='logout'),
+    # path('signup/', BaseRegisterView.as_view(template_name='signup.html'), name='signup'),
+    path('become_an_author/', become_an_author, name='become_an_author'),
+    path('accounts/', include('allauth.urls')),
+    path('logout/', logout_user, name='logout'),
 ]
