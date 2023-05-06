@@ -1,11 +1,22 @@
+from django.contrib.auth import logout
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect, Http404
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-
-from .forms import PostForm
+from django.contrib.auth.decorators import login_required
+from .forms import PostForm, BaseRegisterForm
 from .models import Post
 from .filters import PostFilter
+from django.contrib.auth.models import Group
+from django.contrib.auth.mixins import PermissionRequiredMixin
+
+
+# class BaseRegisterView(CreateView):
+#     model = User
+#     form_class = BaseRegisterForm
+#     success_url = '/'
 
 
 class AllPostsList(ListView):
@@ -14,6 +25,11 @@ class AllPostsList(ListView):
     template_name = 'posts.html'
     context_object_name = 'posts'
     paginate_by = 2
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(AllPostsList, self).get_context_data(**kwargs)
+        context['is_not_author'] = not self.request.user.groups.filter(name='author').exists()
+        return context
 
 
 class SearchPostList(ListView):
@@ -40,6 +56,11 @@ class ArticleList(ListView):
     context_object_name = 'articles'
     paginate_by = 2
 
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(ArticleList, self).get_context_data(**kwargs)
+        context['is_not_author'] = not self.request.user.groups.filter(name='author').exists()
+        return context
+
 
 class PostView(DetailView):
     # queryset = Post.objects.filter(post_type='AR').order_by('creation_time')
@@ -54,6 +75,11 @@ class NewsList(ListView):
     context_object_name = 'news'
     paginate_by = 2
 
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(NewsList, self).get_context_data(**kwargs)
+        context['is_not_author'] = not self.request.user.groups.filter(name='author').exists()
+        return context
+
 
 class NewsView(DetailView):
     queryset = Post.objects.filter(post_type='NW')
@@ -67,10 +93,11 @@ class ArticleView(DetailView):
     context_object_name = 'article'
 
 
-class NewsCreate(CreateView):
+class NewsCreate(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     form_class = PostForm
     model = Post
     template_name = 'post_edit.html'
+    permission_required = ('news.add_post',)
 
     def form_valid(self, form):
         news = form.save(commit=False)
@@ -78,10 +105,11 @@ class NewsCreate(CreateView):
         return super().form_valid(form)
 
 
-class NewsUpdate(UpdateView):
+class NewsUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     form_class = PostForm
     model = Post
     template_name = 'post_edit.html'
+    permission_required = ('news.change_post',)
 
     def dispatch(self, request, *args, **kwargs):
         if self.get_object().post_type != "NW":
@@ -90,10 +118,11 @@ class NewsUpdate(UpdateView):
             request, *args, **kwargs)
 
 
-class NewsDelete(DeleteView):
+class NewsDelete(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = Post
     template_name = 'post_delete.html'
     success_url = reverse_lazy('all_news')
+    permission_required = ('news.delete_post',)
 
     def dispatch(self, request, *args, **kwargs):
         if self.get_object().post_type != "NW":
@@ -101,10 +130,12 @@ class NewsDelete(DeleteView):
         return super(NewsDelete, self).dispatch(
             request, *args, **kwargs)
 
-class ArticleCreate(CreateView):
+
+class ArticleCreate(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     form_class = PostForm
     model = Post
     template_name = 'post_edit.html'
+    permission_required = ('news.add_post',)
 
     def form_valid(self, form):
         news = form.save(commit=False)
@@ -112,10 +143,11 @@ class ArticleCreate(CreateView):
         return super().form_valid(form)
 
 
-class ArticleUpdate(UpdateView):
+class ArticleUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     form_class = PostForm
     model = Post
     template_name = 'post_edit.html'
+    permission_required = ('news.change_post',)
 
     def dispatch(self, request, *args, **kwargs):
         if self.get_object().post_type != "AR":
@@ -124,16 +156,31 @@ class ArticleUpdate(UpdateView):
             request, *args, **kwargs)
 
 
-class ArticleDelete(DeleteView):
+class ArticleDelete(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = Post
     template_name = 'post_delete.html'
     success_url = reverse_lazy('all_articles')
+    permission_required = ('news.delete_post',)
 
     def dispatch(self, request, *args, **kwargs):
         if self.get_object().post_type != "AR":
             raise Http404('Такой статьи нет!')
         return super(ArticleDelete, self).dispatch(
             request, *args, **kwargs)
+
+
+@login_required
+def become_an_author(request):
+    user = request.user
+    author_group = Group.objects.get(name='authors')
+    if not request.user.groups.filter(name='authors').exists():
+        author_group.user_set.add(user)
+    return redirect('/')
+
+
+def logout_user(request):
+    logout(request)
+    return redirect('/')
 
 # def create_post(request):
 #     form = PostForm()
