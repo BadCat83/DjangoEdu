@@ -6,8 +6,8 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
-from .forms import PostForm, BaseRegisterForm
-from .models import Post
+from .forms import PostForm
+from .models import Post, Author
 from .filters import PostFilter
 from django.contrib.auth.models import Group
 from django.contrib.auth.mixins import PermissionRequiredMixin
@@ -102,7 +102,12 @@ class NewsCreate(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     def form_valid(self, form):
         news = form.save(commit=False)
         news.post_type = 'NW'
+        news.post_author = Author.objects.filter(username=self.request.user)[0]
         return super().form_valid(form)
+
+    def post(self, request, *args, **kwargs):
+        print("Sending mail")
+        return super(NewsCreate, self).post(request, *args, **kwargs)
 
 
 class NewsUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
@@ -114,8 +119,10 @@ class NewsUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     def dispatch(self, request, *args, **kwargs):
         if self.get_object().post_type != "NW":
             raise Http404('Такой новости нет!')
-        return super(NewsUpdate, self).dispatch(
-            request, *args, **kwargs)
+        elif str(self.request.user) != str(self.get_object().post_author):
+            raise Http404("Только автор может вносить изменение в новость!")
+        else:
+            return super(NewsUpdate, self).dispatch(request, *args, **kwargs)
 
 
 class NewsDelete(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
@@ -127,8 +134,10 @@ class NewsDelete(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     def dispatch(self, request, *args, **kwargs):
         if self.get_object().post_type != "NW":
             raise Http404('Такой новости нет!')
-        return super(NewsDelete, self).dispatch(
-            request, *args, **kwargs)
+        elif str(self.request.user) != str(self.get_object().post_author):
+            raise Http404("Вы не автор данной новости!")
+        else:
+            return super(NewsDelete, self).dispatch(request, *args, **kwargs)
 
 
 class ArticleCreate(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
@@ -140,6 +149,7 @@ class ArticleCreate(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     def form_valid(self, form):
         news = form.save(commit=False)
         news.post_type = 'AR'
+        news.post_author = Author.objects.filter(username=self.request.user)[0]
         return super().form_valid(form)
 
 
@@ -152,8 +162,10 @@ class ArticleUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     def dispatch(self, request, *args, **kwargs):
         if self.get_object().post_type != "AR":
             raise Http404('Такой статьи нет!')
-        return super(ArticleUpdate, self).dispatch(
-            request, *args, **kwargs)
+        elif str(self.request.user) != str(self.get_object().post_author):
+            raise Http404("Только автор может вносить изменение в статью!")
+        else:
+            return super(ArticleUpdate, self).dispatch(request, *args, **kwargs)
 
 
 class ArticleDelete(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
@@ -165,16 +177,20 @@ class ArticleDelete(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     def dispatch(self, request, *args, **kwargs):
         if self.get_object().post_type != "AR":
             raise Http404('Такой статьи нет!')
-        return super(ArticleDelete, self).dispatch(
-            request, *args, **kwargs)
+        elif str(self.request.user) != str(self.get_object().post_author):
+            raise Http404("Вы не автор данной статьи!")
+        else:
+            return super(ArticleDelete, self).dispatch(request, *args, **kwargs)
 
 
 @login_required
 def become_an_author(request):
     user = request.user
     author_group = Group.objects.get(name='authors')
+    author = Author(username=user, nick_name=user)
     if not request.user.groups.filter(name='authors').exists():
         author_group.user_set.add(user)
+        author.save()
     return redirect('/')
 
 
