@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -142,8 +143,16 @@ ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_VERIFICATION = 'none'
-ACCOUNT_FORMS = {'signup': 'news.forms.BaseRegisterForm'}
+ACCOUNT_FORMS = {'signup': 'news.forms.BaseRegisterForm',
+                 'google/login': 'news.forms.GoogleRegisterForm'}
 
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 SITE_ID = 1
+
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_PORT = 465
+load_dotenv()
+EMAIL_HOST_USER = os.getenv('USER')
+EMAIL_HOST_PASSWORD = os.getenv('PASSWORD')
+EMAIL_USE_SSL = True
