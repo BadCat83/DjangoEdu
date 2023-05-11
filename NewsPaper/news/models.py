@@ -26,8 +26,16 @@ class Author(models.Model):
         return sum_rate
 
 
+    def __str__(self):
+        if self.nick_name:
+            return f'{self.nick_name}'
+        else:
+            return f'{self.username}'
+
+
 class Category(models.Model):
     category = models.CharField(max_length=100, unique=True)
+    # subscribers = models.ManyToManyField(User)
 
     def __str__(self):
         return f'{self.category}'
@@ -73,6 +81,9 @@ class PostCategory(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f'{self.category}:{self.post}'
+
 
 class Comment(models.Model):
     to_post = models.ForeignKey(Post, on_delete=models.CASCADE)
@@ -88,3 +99,7 @@ class Comment(models.Model):
     def dislike(self) -> None:
         self.rate -= 1
         self.save()
+
+    def __str__(self):
+        return f'{self.text}, @{self.user}'
+
