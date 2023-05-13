@@ -7,8 +7,8 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from .forms import PostForm
-from .models import Post, Author
-from .filters import PostFilter
+from .models import Post, Author, Category
+from .filters import PostFilter, CategoryFilter
 from django.contrib.auth.models import Group
 from django.contrib.auth.mixins import PermissionRequiredMixin
 
@@ -17,6 +17,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 #     model = User
 #     form_class = BaseRegisterForm
 #     success_url = '/'
+from .templatetags.utils import send_email
 
 
 class AllPostsList(ListView):
@@ -29,7 +30,13 @@ class AllPostsList(ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(AllPostsList, self).get_context_data(**kwargs)
         context['is_not_author'] = not self.request.user.groups.filter(name='author').exists()
+        context['cat_filter'] = self.cat_filter
         return context
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        self.cat_filter = CategoryFilter(self.request.GET, queryset)
+        return self.cat_filter.qs
 
 
 class SearchPostList(ListView):
@@ -106,7 +113,7 @@ class NewsCreate(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def post(self, request, *args, **kwargs):
-        print("Sending mail")
+        send_email('новость', request)
         return super(NewsCreate, self).post(request, *args, **kwargs)
 
 
@@ -152,6 +159,10 @@ class ArticleCreate(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
         news.post_author = Author.objects.filter(username=self.request.user)[0]
         return super().form_valid(form)
 
+    def post(self, request, *args, **kwargs):
+        send_email('статья', request)
+        return super(ArticleCreate, self).post(request, *args, **kwargs)
+
 
 class ArticleUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     form_class = PostForm
@@ -192,6 +203,18 @@ def become_an_author(request):
         author_group.user_set.add(user)
         author.save()
     return redirect('/')
+
+@login_required
+def subscribe(request):
+    ref = request.META.get('HTTP_REFERER')
+    if 'category' in ref:
+        categories = ref.split('?')[1].split('&')
+        user = User.objects.filter(username=request.user)
+        print(user)
+        for category in categories:
+            cat = Category.objects.filter(pk=category.split('=')[1])[0]
+            cat.subscribers.add(*user)
+    return redirect(ref)
 
 
 def logout_user(request):
