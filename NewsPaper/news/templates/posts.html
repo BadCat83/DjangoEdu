@@ -8,6 +8,14 @@
 
 {% block content %}
 <h1>Всего {{posts|length}} пост{{posts|length|posts_formatting}}</h1>
+<h3>Выбрать категорию</h3>
+<p>
+    <form action="" method="get">
+       {{ cat_filter.form.as_p }}
+       <input type="submit" value="Выбрать категорию" />
+       <button> <a href="subscribe/"> Подписаться на выбранные категории</a> </button>
+   </form>
+</p>
 <hr>
    {% if posts %}
        <table>
