@@ -1,4 +1,9 @@
-def censor(text):
+from django.contrib.auth.models import User
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+
+
+def censor(text: str) -> str:
     if type(text) == str:
         obscene_words = {'редиска', 'свинтус', 'дурак'}
         text = text.split(' ')
@@ -9,3 +14,28 @@ def censor(text):
         return " ".join(text)
     else:
         raise ValueError
+
+
+def send_email(post_type: str, request) -> None:
+    title = request.POST['title']
+    text = request.POST['text']
+    category = request.POST['category']
+    users = User.objects.filter(category__id=category)
+    if users:
+        html_content = render_to_string(
+            'post_created.html',
+            {
+                'post_type': post_type,
+                'title': title,
+                'text': text,
+            }
+        )
+        for user in users:
+            msg = EmailMultiAlternatives(
+                subject=f"{title}",
+                body=f"Здравствуй, {user.username}. Новая статья в твоём любимом разделе!",
+                from_email='bdct@yandex.ru',
+                to=[user.email],  # для проверки, потом надо вытащить email пользователя
+            )
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
