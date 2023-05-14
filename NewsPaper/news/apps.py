@@ -7,4 +7,4 @@ class NewsConfig(AppConfig):
     name = 'news'
 
     def ready(self):
-        import sygnals
+        import news.sygnals
