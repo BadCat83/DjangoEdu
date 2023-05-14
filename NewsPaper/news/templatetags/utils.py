@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
+from NewsPaper.settings import DEFAULT_FROM_EMAIL
 
 
 def censor(text: str) -> str:
@@ -34,8 +35,8 @@ def send_email(post_type: str, request) -> None:
             msg = EmailMultiAlternatives(
                 subject=f"{title}",
                 body=f"Здравствуй, {user.username}. Новая статья в твоём любимом разделе!",
-                from_email='bdct@yandex.ru',
-                to=[user.email],  # для проверки, потом надо вытащить email пользователя
+                from_email=DEFAULT_FROM_EMAIL,
+                to=[user.email],
             )
             msg.attach_alternative(html_content, "text/html")
             msg.send()
