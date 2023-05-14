@@ -112,9 +112,9 @@ class NewsCreate(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
         news.post_author = Author.objects.filter(username=self.request.user)[0]
         return super().form_valid(form)
 
-    def post(self, request, *args, **kwargs):
-        send_email('новость', request)
-        return super(NewsCreate, self).post(request, *args, **kwargs)
+    # def post(self, request, *args, **kwargs):
+    #     send_email('новость', request)
+    #     return super(NewsCreate, self).post(request, *args, **kwargs)
 
 
 class NewsUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
