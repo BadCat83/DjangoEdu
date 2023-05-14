@@ -41,10 +41,11 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
-    'news',
+    'news.apps.NewsConfig',
     'accounts',
     'django_filters',
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -141,15 +142,17 @@ STATICFILES_DIRS = [
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_SUBJECT_PREFIX = 'DjangoEdu. '
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 ACCOUNT_FORMS = {'signup': 'news.forms.BaseRegisterForm',
                  'google/login': 'news.forms.GoogleRegisterForm'}
 
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
-SITE_ID = 1
 
+SITE_ID = 1
+DEFAULT_FROM_EMAIL = os.getenv('EMAIL')
 EMAIL_HOST = 'smtp.yandex.ru'
 EMAIL_PORT = 465
 load_dotenv()
