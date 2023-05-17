@@ -1,7 +1,12 @@
+from datetime import datetime, timedelta
+
 from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
+from django.http import Http404
 from django.template.loader import render_to_string
 from NewsPaper.settings import DEFAULT_FROM_EMAIL
+
+from ..models import Post
 
 
 def censor(text: str) -> str:
@@ -40,3 +45,10 @@ def send_email(post_type: str, request) -> None:
             )
             msg.attach_alternative(html_content, "text/html")
             msg.send()
+
+def check_posts_count(request):
+    last_posts = Post.objects.filter(post_author__username=request.user).values_list("creation_time").order_by(
+        '-creation_time')[:3]
+    last_posts = datetime.strptime(last_posts[2][0].strftime("%Y-%m-%d %H:%M:%S"), "%Y-%m-%d %H:%M:%S")
+    if datetime.now() - last_posts < timedelta(days=1):
+        raise Http404("Нельзя публиковать более 3 постов в день!")
