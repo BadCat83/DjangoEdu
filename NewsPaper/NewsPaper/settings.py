@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'news.apps.NewsConfig',
     'accounts',
     'django_filters',
+    'django_apscheduler',
 ]
 
 
@@ -152,6 +153,7 @@ LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 
 SITE_ID = 1
+SITE_URL = 'http://127.0.0.1:8000'
 DEFAULT_FROM_EMAIL = os.getenv('EMAIL')
 EMAIL_HOST = 'smtp.yandex.ru'
 EMAIL_PORT = 465
@@ -159,3 +161,6 @@ load_dotenv()
 EMAIL_HOST_USER = os.getenv('USER')
 EMAIL_HOST_PASSWORD = os.getenv('PASSWORD')
 EMAIL_USE_SSL = True
+
+APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
+APSCHEDULER_RUN_NOW_TIMEOUT = 25
