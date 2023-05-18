@@ -17,7 +17,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 #     model = User
 #     form_class = BaseRegisterForm
 #     success_url = '/'
-from .templatetags.utils import send_email, check_posts_count
+from .templatetags.utils import new_post_nottification, check_posts_count
 
 
 class AllPostsList(ListView):
