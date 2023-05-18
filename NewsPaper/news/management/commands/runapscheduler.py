@@ -19,7 +19,6 @@ def my_job():
     send_every_week_email()
 
 
-
 # функция, которая будет удалять неактуальные задачи
 def delete_old_job_executions(max_age=604_800):
     """This job deletes all apscheduler job executions older than `max_age` from the database."""
@@ -36,7 +35,7 @@ class Command(BaseCommand):
         # добавляем работу нашему задачнику
         scheduler.add_job(
             my_job,
-            # trigger=CronTrigger(second="*/10"), # Для проверки
+            # trigger=CronTrigger(second="*/10"),  # Для проверки
             trigger=CronTrigger(
                 day_of_week="sun", hour="10", minute="00"
             ),

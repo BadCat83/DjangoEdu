@@ -1,12 +1,13 @@
+import os
 from datetime import datetime, timedelta
 
 from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
 from django.http import Http404
 from django.template.loader import render_to_string
-from NewsPaper.settings import DEFAULT_FROM_EMAIL
+from NewsPaper.settings import SITE_URL
 
-from ..models import Post
+from ..models import Post, Category
 
 
 def censor(text: str) -> str:
@@ -22,7 +23,37 @@ def censor(text: str) -> str:
         raise ValueError
 
 
-def send_email(post_type: str, request) -> None:
+def send_every_week_email():
+    users = []
+    last_week = datetime.now() - timedelta(days=1)
+    posts = Post.objects.filter(creation_time__gte=last_week)
+    categories = set(posts.values_list('category__category', flat=True))
+    for category in categories:
+        users += Category.objects.filter(category=category).values_list(
+            'subscribers__username',
+            'subscribers__email'
+        )
+    html_content = render_to_string(
+        'posts_last_week.html',
+        {
+            'link': f'{SITE_URL}',
+            'posts': posts,
+        }
+    )
+    for user in set(users):
+        user_name, user_email = user
+        if user_name:
+            msg = EmailMultiAlternatives(
+                subject=f"Здравствуй, {user_name}.",
+                body='',
+                from_email=os.getenv('EMAIL'),
+                to=[user_email],
+            )
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
+
+
+def new_post_nottification(post_type: str, request) -> None:
     title = request.POST['title']
     text = request.POST['text']
     category = request.POST['category']
@@ -34,6 +65,7 @@ def send_email(post_type: str, request) -> None:
                 'post_type': post_type,
                 'title': title,
                 'text': text,
+                # 'link': f'{SITE_URL}/news/{pk}',
             }
         )
         for user in users:
@@ -46,9 +78,9 @@ def send_email(post_type: str, request) -> None:
             msg.attach_alternative(html_content, "text/html")
             msg.send()
 
+
 def check_posts_count(request):
-    last_posts = Post.objects.filter(post_author__username=request.user).values_list("creation_time").order_by(
-        '-creation_time')[:3]
-    last_posts = datetime.strptime(last_posts[2][0].strftime("%Y-%m-%d %H:%M:%S"), "%Y-%m-%d %H:%M:%S")
-    if datetime.now() - last_posts < timedelta(days=1):
+    last_time = datetime.now() - timedelta(days=1)
+    last_posts = Post.objects.filter(creation_time__gte=last_time, post_author__username=request.user)
+    if last_posts and len(last_posts) >= 3:
         raise Http404("Нельзя публиковать более 3 постов в день!")
