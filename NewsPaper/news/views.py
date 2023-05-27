@@ -12,7 +12,6 @@ from .filters import PostFilter, CategoryFilter
 from django.contrib.auth.models import Group
 from django.contrib.auth.mixins import PermissionRequiredMixin
 
-
 # class BaseRegisterView(CreateView):
 #     model = User
 #     form_class = BaseRegisterForm
@@ -211,6 +210,7 @@ def become_an_author(request):
         author_group.user_set.add(user)
         author.save()
     return redirect('/')
+
 
 @login_required
 def subscribe(request):
