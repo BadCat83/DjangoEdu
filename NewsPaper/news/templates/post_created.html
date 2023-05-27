@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Новая {{post_type}}!</title>
+</head>
+<body>
+    <h2>Новая <a href="{{ link }}{{ post.get_absolute_url }}">{{post_type}}</a>!</h2>
+    <p>  Новая {{post_type}}: {{title}}. </p>
+    <p> {{text|truncatechars:50 }} </p>
+</body>
+</html>
