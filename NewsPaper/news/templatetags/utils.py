@@ -25,7 +25,7 @@ def censor(text: str) -> str:
 
 def send_every_week_email():
     users = []
-    last_week = datetime.now() - timedelta(days=1)
+    last_week = datetime.now() - timedelta(days=7)
     posts = Post.objects.filter(creation_time__gte=last_week)
     categories = set(posts.values_list('category__category', flat=True))
     for category in categories:
