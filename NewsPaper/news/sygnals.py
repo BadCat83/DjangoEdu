@@ -32,4 +32,4 @@ def user_signed_up_(request, user, **kwargs):
 @receiver(m2m_changed, sender=PostCategory)
 def send_email(sender, instance, **kwargs) -> None:
     if kwargs['action'] == 'post_add':
-        send_email_through_celery(instance)
+        send_email_through_celery.delay(instance.pk)
