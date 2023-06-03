@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.db import models
 from django.urls import reverse
 
@@ -75,6 +76,13 @@ class Post(models.Model):
         if self.post_type == "NW":
             return reverse('news', args=[str(self.id)])
         return reverse('article', args=[str(self.id)])
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.post_type == 'NW':
+            cache.delete(f'news-{self.pk}')
+        else:
+            cache.delete(f'article-{self.pk}')
 
 
 class PostCategory(models.Model):
