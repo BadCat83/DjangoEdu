@@ -11,6 +11,7 @@ from .models import Post, Author, Category
 from .filters import PostFilter, CategoryFilter
 from django.contrib.auth.models import Group
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.core.cache import cache
 
 # class BaseRegisterView(CreateView):
 #     model = User
@@ -92,11 +93,25 @@ class NewsView(DetailView):
     template_name = 'detail_news.html'
     context_object_name = 'news'
 
+    def get_object(self, *args, **kwargs):
+        obj = cache.get(f'news-{self.kwargs["pk"]}', None)
+        if not obj:
+            obj = super().get_object(queryset=self.queryset)
+            cache.set(f'news-{self.kwargs["pk"]}', obj)
+        return obj
+
 
 class ArticleView(DetailView):
     queryset = Post.objects.filter(post_type='AR')
     template_name = 'article.html'
     context_object_name = 'article'
+
+    def get_object(self, *args, **kwargs):
+        obj = cache.get(f'article-{self.kwargs["pk"]}', None)
+        if not obj:
+            obj = super().get_object(queryset=self.queryset)
+            cache.set(f'article-{self.kwargs["pk"]}', obj)
+        return obj
 
 
 class NewsCreate(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
