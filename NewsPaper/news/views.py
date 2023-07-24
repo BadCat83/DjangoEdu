@@ -1,3 +1,4 @@
+import pytz
 from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
@@ -12,12 +13,9 @@ from .filters import PostFilter, CategoryFilter
 from django.contrib.auth.models import Group
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.cache import cache
-
-# class BaseRegisterView(CreateView):
-#     model = User
-#     form_class = BaseRegisterForm
-#     success_url = '/'
+from django.utils.translation import gettext as _
 from .templatetags.utils import new_post_nottification, check_posts_count
+from django.utils import timezone
 
 
 class AllPostsList(ListView):
@@ -31,12 +29,18 @@ class AllPostsList(ListView):
         context = super(AllPostsList, self).get_context_data(**kwargs)
         context['is_not_author'] = not self.request.user.groups.filter(name='author').exists()
         context['cat_filter'] = self.cat_filter
+        context['current_time'] = timezone.now()
+        context['timezones'] = pytz.common_timezones
         return context
 
     def get_queryset(self):
         queryset = super().get_queryset()
         self.cat_filter = CategoryFilter(self.request.GET, queryset)
         return self.cat_filter.qs
+
+    def post(self, request):
+        request.session['django_timezone'] = request.POST['timezone']
+        return redirect('/')
 
 
 class SearchPostList(ListView):
@@ -143,9 +147,9 @@ class NewsUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
 
     def dispatch(self, request, *args, **kwargs):
         if self.get_object().post_type != "NW":
-            raise Http404('Такой новости нет!')
+            raise Http404(_('Такой новости нет!'))
         elif str(self.request.user) != str(self.get_object().post_author):
-            raise Http404("Только автор может вносить изменение в новость!")
+            raise Http404(_("Только автор может вносить изменение в новость!"))
         else:
             return super(NewsUpdate, self).dispatch(request, *args, **kwargs)
 
@@ -158,9 +162,9 @@ class NewsDelete(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
 
     def dispatch(self, request, *args, **kwargs):
         if self.get_object().post_type != "NW":
-            raise Http404('Такой новости нет!')
+            raise Http404(_('Такой новости нет!'))
         elif str(self.request.user) != str(self.get_object().post_author):
-            raise Http404("Вы не автор данной новости!")
+            raise Http404(_("Вы не автор данной новости!"))
         else:
             return super(NewsDelete, self).dispatch(request, *args, **kwargs)
 
@@ -194,9 +198,9 @@ class ArticleUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
 
     def dispatch(self, request, *args, **kwargs):
         if self.get_object().post_type != "AR":
-            raise Http404('Такой статьи нет!')
+            raise Http404(_('Такой статьи нет!'))
         elif str(self.request.user) != str(self.get_object().post_author):
-            raise Http404("Только автор может вносить изменение в статью!")
+            raise Http404(_("Только автор может вносить изменение в статью!"))
         else:
             return super(ArticleUpdate, self).dispatch(request, *args, **kwargs)
 
@@ -209,9 +213,9 @@ class ArticleDelete(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
 
     def dispatch(self, request, *args, **kwargs):
         if self.get_object().post_type != "AR":
-            raise Http404('Такой статьи нет!')
+            raise Http404(_('Такой статьи нет!'))
         elif str(self.request.user) != str(self.get_object().post_author):
-            raise Http404("Вы не автор данной статьи!")
+            raise Http404(_("Вы не автор данной статьи!"))
         else:
             return super(ArticleDelete, self).dispatch(request, *args, **kwargs)
 

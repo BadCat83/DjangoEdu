@@ -1,28 +1,36 @@
 {% extends 'default.html' %}
 
 {% load custom_filters %}
+{% load i18n %}
 
 {% block title %}
-<h1>Все посты</h1>
+<h1>{% trans "Все посты" %}</h1>
 {% endblock title %}
 
 {% block content %}
-<h1>Всего {{posts|length}} пост{{posts|length|posts_formatting}}</h1>
-<h3>Выбрать категорию</h3>
+<h1>{% trans "Всего" %} {{posts|length}}
+    {% get_current_language as lang %}
+    {% if lang == "ru" %}
+        пост{{posts|length|posts_formatting}}
+    {% else %}
+        posts
+    {% endif %} </h1>
+
+<h3>{% trans "Выбрать категорию" %}</h3>
 <p>
     <form action="" method="get">
        {{ cat_filter.form.as_p }}
-       <input type="submit" value="Выбрать категорию" />
-       <button> <a href="subscribe/" class="btn btn-secondary btn-sm"> Подписаться на выбранные категории</a> </button>
+       <input type="submit" value="{% trans "Выбрать категорию" %}"/>
+       <button> <a href="subscribe/" class="btn btn-secondary btn-sm">{% trans "Подписаться на выбранные категории" %}</a> </button>
    </form>
 </p>
 <hr>
    {% if posts %}
        <table>
            <tr>
-               <td>Заголовок</td>
-               <td>Дата публикации</td>
-               <td>Содержание</td>
+               <td>{% trans 'Заголовок' %}</td>
+               <td>{% trans 'Дата публикации' %}</td>
+               <td>{% trans 'Содержание' %}</td>
            </tr>
 
            {% for post in posts %}
@@ -35,7 +43,7 @@
 
        </table>
    {% else %}
-       <h2>Постов нет!</h2>
+       <h2>{% trans 'Постов нет!' %}</h2>
    {% endif %}
 
     {# Добавляем пагинацию на страницу #}

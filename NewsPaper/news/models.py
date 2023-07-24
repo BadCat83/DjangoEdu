@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.db import models
 from django.urls import reverse
+from django.utils.translation import gettext as _
 
 
 class Author(models.Model):
@@ -47,8 +48,8 @@ class Post(models.Model):
     news = 'NW'
 
     POST_TYPE = [
-        (article, 'Статья'),
-        (news, 'Новости')
+        (article, _('Статья')),
+        (news, _('Новости'))
     ]
     title = models.CharField(max_length=255)
     text = models.TextField()
